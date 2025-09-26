@@ -1,1 +1,36 @@
+### Get OAuth token (US2) — fill env or inline
+POST https://us2.ninjarmm.com/oauth/token
+Content-Type: application/x-www-form-urlencoded
+
+grant_type=client_credentials&client_id={{NINJA_CLIENT_ID}}&client_secret={{NINJA_CLIENT_SECRET}}&scope=public-api
+
+### Sample GET (devices)
+GET https://us2.ninjarmm.com/api/v2/devices/detailed?limit=1
+Authorization: Bearer {{ACCESS_TOKEN}}
+
+### Simulate webhook: ticket created
+POST http://localhost:8000/webhooks/ninjaone
+Content-Type: application/json
+
+{
+  "eventType": "TICKET_CREATED",
+  "ticketId": 123456,
+  "deviceId": 98765,
+  "title": "User cannot print",
+  "description": "Print spooler service appears stuck after Windows update"
+}
+
+### Simulate webhook: technician updated ticket with a reply
+POST http://localhost:8000/webhooks/ninjaone
+Content-Type: application/json
+
+{
+  "eventType": "TICKET_UPDATED",
+  "ticketId": 123456,
+  "deviceId": 98765,
+  "title": "User cannot print",
+  "description": "Print spooler service appears stuck after Windows update",
+  "lastCommentText": "I restarted the Print Spooler and cleared the queue; monitoring now.",
+  "lastCommentAuthorRole": "TECHNICIAN"
+}
 
