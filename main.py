@@ -17,8 +17,31 @@ from storage import init_db, save_solution, get_solution
 
 load_dotenv()
 
-logging.basicConfig(level=getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO))
+# near the top of main.py, replace the logging setup block:
+
+import logging
+from logging.handlers import RotatingFileHandler
+from config import settings
+import os
+
 log = logging.getLogger("ninjaone-agent")
+log.setLevel(getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO))
+
+# Console handler (journald will capture stdout/stderr)
+ch = logging.StreamHandler()
+ch.setLevel(log.level)
+log.addHandler(ch)
+
+# File handler (optional)
+log_dir = "/var/log/ninjaone-agent"
+os.makedirs(log_dir, exist_ok=True)
+fh = RotatingFileHandler(os.path.join(log_dir, "ninja-agent.log"), maxBytes=5_000_000, backupCount=5)
+fh.setLevel(log.level)
+fmt = logging.Formatter("%(asctime)s %(levelname)s %(name)s: %(message)s")
+fh.setFormatter(fmt)
+ch.setFormatter(fmt)
+log.addHandler(fh)
+
 
 app = FastAPI(title="NinjaOne AI Agent (US2-ready)")
 ninja = NinjaClient()

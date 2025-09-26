@@ -1,0 +1,40 @@
+name: Docker Publish
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'   # push on version tags like v1.0.0
+
+env:
+  IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/ninjaone-ai-agent
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract tag
+        id: meta
+        run: |
+          echo "TAG=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Build
+        run: |
+          docker build -t $IMAGE_NAME:${{ steps.meta.outputs.TAG }} -t $IMAGE_NAME:latest .
+
+      - name: Push
+        run: |
+          docker push $IMAGE_NAME:${{ steps.meta.outputs.TAG }}
+          docker push $IMAGE_NAME:latest

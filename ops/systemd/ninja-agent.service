@@ -1,0 +1,26 @@
+[Unit]
+Description=NinjaOne AI Agent (FastAPI)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+# >>> EDIT THESE TWO PATHS <<<
+User=your-ubuntu-user
+WorkingDirectory=/home/your-ubuntu-user/ninjaone-ai-agent
+
+# Optional: export env from .env file (simple approach)
+EnvironmentFile=/home/your-ubuntu-user/ninjaone-ai-agent/.env
+
+# Use your venv path
+ExecStart=/home/your-ubuntu-user/ninjaone-ai-agent/.venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000
+Restart=always
+RestartSec=3
+TimeoutStartSec=30
+
+# Hardening (optional)
+NoNewPrivileges=true
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

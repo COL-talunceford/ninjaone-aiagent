@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          # lightweight linters (optional):
+          pip install flake8
+
+      - name: Lint
+        run: |
+          flake8 . --max-line-length=120 --exclude .venv
+
+      - name: Import smoke test
+        run: |
+          python - <<'PY'
+          import importlib
+          for m in ["config","ninja_api","runbooks","llm_agent","storage","main"]:
+              importlib.import_module(m)
+          print("Imports OK")
+          PY
